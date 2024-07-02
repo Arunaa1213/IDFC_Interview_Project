@@ -1,34 +1,43 @@
-from django.shortcuts import redirect,render
+from django.shortcuts import get_object_or_404, redirect, render
 from .forms import MyRegisterForm
 from .models import RegisterForm
-# Create your views here.
+from django.http import JsonResponse
+
+# def home(request):        
+#     if request.method == 'POST':
+#         form = MyRegisterForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('profile')
+#     else:
+#         form = MyRegisterForm()
+#     return render(request, 'home.html', {'form': form})
+
 def home(request):        
-    if(request.method =='POST'):
+    if request.POST.get('requestType') == 'insert':
         form = MyRegisterForm(request.POST)
-        print(form)
         if form.is_valid():
             form.save()
-            
-            return redirect('profile')
-    form = MyRegisterForm()
+            return JsonResponse({'redirect_url': 'profile'}, status=200)
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = MyRegisterForm()
     return render(request, 'home.html', {'form': form})
 
 def profile(request):
-    # form = MyRegisterForm()
-    data = RegisterForm.objects.all()
-    # print(data)
-    return render(request, 'profile.html', {'datas': data})
+    datas = RegisterForm.objects.all()
+    form = MyRegisterForm()
+    return render(request, 'profile.html', {'datas': datas, 'form': form})
 
-def register(request):
-    print(request.POST)
-    if(request.method =='POST'):
-        form = MyRegisterForm(request.POST, instance = RegisterForm)
-        print(form)
-        if form.is_valid():
-            form.save()
-            return redirect('profile')
-    else:
-        return redirect('home')
+# def register(request):
+#     if request.method == 'POST':
+#         form = MyRegisterForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('profile')
+#     else:
+#         return redirect('home')
 
 def delete(request, id):
     data = RegisterForm.objects.get(id=id)
@@ -37,19 +46,12 @@ def delete(request, id):
 
 def update(request, id):
     data = RegisterForm.objects.get(id=id)
-    form = MyRegisterForm()
-    print(request.POST)
-    # form.name = data.name
-    # form.age = data.age
-    # form.address = data.address
-    # form.contact = data.contact
-    # form.email = data.email
-    return render(request, 'home.html', {'form': form})
-    # name = request.name
-    # age = request.age
-    # address = request.address
-    # contact = request.contact
-    # email = request.email
-
-
-
+    if request.POST.get('requestType') == 'update':
+        form = MyRegisterForm(request.POST, instance=data)
+        if form.is_valid():
+            form.save()
+            # return redirect('profile')
+            return JsonResponse({'redirect_url': '/profile'}, status=200)
+    else:
+        form = MyRegisterForm(instance=data)
+    return render(request, 'profile.html', {'form': form, 'datas': RegisterForm.objects.all()})

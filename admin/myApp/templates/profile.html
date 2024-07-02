@@ -1,7 +1,17 @@
-
-{% extends 'home.html' %}
-{% block con %}
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
 <div>
+    <div class="loginOuter">
+        <form autocomplete="off" id="updateData">
+            <h3 class="heading">Update Profile</h3>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
     <h4>Profile</h4>
     <table class="table table-bordered">
         <thead>
@@ -25,10 +35,44 @@
                     <th>{{data.contact}}</th>
                     <th>{{data.email}}</th>
                     <th><a href='/update/{{data.id}}' class="btn btn-primary">Update</a></th>
-                    <th><a href='/delete/{{data.id}}' class="btn btn-delete">Delete</a></th>
+                    <th><a href='/delete/{{data.id}}' class="btn btn-danger">Delete</a></th>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+<!-- <script src="{% static 'js/index.js' %}"></script> -->
+ <script>
+    document.getElementById('updateData').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const formData = new FormData(this);
+    formData.append('requestType', 'update');
+    fetch('', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+        },
+        body: formData,
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Network response was not ok.');
+        }
+    })
+    .then(data => {
+        if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+        } else {
+            console.log(data);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+ </script>
 {% endblock %}

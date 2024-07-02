@@ -1,19 +1,17 @@
 {% extends 'index.html' %}
+{% load static %}
 {% block content %}
 <div class="loginOuter">
-    <form autocomplete="off" method="POST">
-        <h3 class="heading">Login</h3>
+    <form autocomplete="off" id="loginForm">
+        <h3 class="heading">Register</h3>
         {% csrf_token %}
-        {{form.as_p}}
+        {{ form.as_p }}
         <div>
-            <!-- <a class="btn btn-primary" href='register/'>Login</a> -->
-            <button type="submit" class="btn btn-primary" >Register</button>
+            <button type="button" class="btn btn-secondary" id="clearBtn">Clear</button>
+            <button type="submit" class="btn btn-primary">Register</button>
         </div>
     </form>
-    <div>
-        {% block con %}
-
-        {% endblock %}
-    </div>
 </div>
+
+<script src="{% static 'js/index.js' %}"></script>
 {% endblock %}
